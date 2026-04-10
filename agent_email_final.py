@@ -9,14 +9,12 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime
 
-# Variables avec valeurs par défaut pour debug
 ANTHROPIC_KEY = os.environ.get("ANTHROPIC_API_KEY", "")
 GMAIL = os.environ.get("GMAIL_ADDRESS", "")
 PASSWORD = os.environ.get("GMAIL_PASSWORD", "")
 TELEGRAM_TOKEN = os.environ.get("TELEGRAM_TOKEN", "")
 TELEGRAM_CHAT_ID = os.environ.get("TELEGRAM_CHAT_ID", "")
 
-# Vérification des variables
 variables_manquantes = []
 if not ANTHROPIC_KEY: variables_manquantes.append("ANTHROPIC_API_KEY")
 if not GMAIL: variables_manquantes.append("GMAIL_ADDRESS")
@@ -65,16 +63,21 @@ def lire_emails():
 
 def envoyer_email(contenu):
     try:
+        print(f"→ Tentative envoi email à {GMAIL}")
         msg = MIMEMultipart()
         msg["From"] = GMAIL
         msg["To"] = GMAIL
         msg["Subject"] = f"Rapport Email du {datetime.now().strftime('%d/%m/%Y')}"
         msg.attach(MIMEText(contenu, "plain"))
+        print("→ Connexion SMTP...")
         with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            print("→ Login SMTP...")
             server.login(GMAIL, PASSWORD)
+            print("→ Envoi...")
             server.send_message(msg)
         return "Rapport envoyé par email ✅"
     except Exception as e:
+        print(f"ERREUR EMAIL: {str(e)}")
         return f"Erreur envoi email: {str(e)}"
 
 def envoyer_telegram(message):
